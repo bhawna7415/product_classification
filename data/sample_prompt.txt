@@ -1,0 +1,37 @@
+Classify each product into one of these three categories: Services, Digital, or Physical.
+
+Services: Things people do for you, not things you can touch.
+Examples:
+
+Haircut
+Car repair
+House cleaning
+Tax advice
+
+
+Digital: Things you get on your computer or phone, not in your hands.
+Examples:
+
+Downloaded music
+eBooks
+Video games you download
+Online courses
+
+
+Physical: Things you can touch, hold, or put in a bag.
+Examples:
+
+T-shirt
+Toy car
+Apple
+Notebook
+
+
+
+Now, classify each of these items into one of the three categories:
+
+[Item to classify]
+[Item to classify]
+[Item to classify]
+...
+

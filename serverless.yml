@@ -1,0 +1,96 @@
+org: kintsugi
+app: platform
+service: product-classification
+
+provider:
+  name: aws
+  runtime: python3.11
+  stage: ${opt:stage, 'dev'}
+  region: us-west-2
+  httpApi:
+    cors:
+      allowedOrigins:
+        - ${self:custom.corsProps.allowedOrigins.${self:provider.stage}, self:custom.corsProps.allowedOrigins.dev}
+      allowedHeaders:
+        - ${self:custom.corsProps.allowedHeaders.${self:provider.stage}, self:custom.corsProps.allowedHeaders.dev}
+      allowedMethods:
+        - ${self:custom.corsProps.allowedMethods.${self:provider.stage}, self:custom.corsProps.allowedMethods.dev}
+  vpc:
+    securityGroupIds: ${self:custom.vpcConfig.${self:provider.stage}.securityGroupIds}
+    subnetIds: ${self:custom.vpcConfig.${self:provider.stage}.subnetIds}
+  environment:
+    OPENAI_API_KEY: ${param:OPENAI_API_KEY, 'sk_test'}
+
+package:
+  individually: true
+  patterns: 
+    - '!node_modules/**'
+    - '!test/**'
+    - '!.env'
+    - '!Dockerfile'
+    - '!bin/**'
+    - '!venv/**'
+    - '!.vscode/**'
+    - '!.github/**'
+    - '!.serverless/**'
+    - '!.pytest_cache/**'
+    - '!.git/**'
+    - '!__pycache__/**'
+    - '!layer_dir/**'
+    - '!layer_dir.zip'
+
+functions:
+  api:
+    handler: main.handler
+    events:
+      - httpApi: '*'
+    memorySize: 4096
+    timeout: 30
+
+
+plugins:
+  - serverless-python-requirements
+  - serverless-domain-manager
+
+
+custom:
+  pythonRequirements:
+    dockerizePip: true
+    slim: true
+  vpcConfig:
+    dev:
+      vpcId: vpc-011f1240d732aaeab
+      securityGroupIds:
+        - sg-09a9ef2dce5f97240
+      subnetIds:
+        - subnet-0714d30a0367d9a5d
+        - subnet-0a6e30cfab0bc03e0
+    prod:
+      vpcId: vpc-0f136f8dff853ad8a
+      securityGroupIds:
+        - sg-08bd2b7df59544ad5
+      subnetIds:
+        - subnet-012368e8f9ce17f41
+        - subnet-07eebebcd0bdf7d28
+  corsProps:
+    allowedOrigins:
+      dev: '*'
+      prod: '*'
+    allowedHeaders:
+      dev: '*'
+      prod: '*'
+    allowedMethods:
+      dev: '*'
+      prod: '*'
+  envCustomDomainProps:
+    domainName:
+      dev: 'dev-classification.trykintsugi.com'
+      prod: 'classification.trykintsugi.com'
+  customDomain:
+    domainName: ${self:custom.envCustomDomainProps.domainName.${self:provider.stage}, self:custom.envCustomDomainProps.domainName.dev}
+    basePath: ''
+    stage: '$default'
+    certificateName: trykintsugi.com
+    createRoute53Record: true
+    endpointType: regional
+    apiType: http
